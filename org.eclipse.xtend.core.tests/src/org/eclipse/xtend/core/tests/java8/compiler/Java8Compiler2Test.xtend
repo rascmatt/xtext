@@ -1576,4 +1576,98 @@ class Java8Compiler2Test extends XtendCompilerTest {
 		''')
 	}
 	
+	@Test
+	def testCase1Before() {
+		assertCompilesTo('''
+			import java.io.FileReader
+			import java.util.Set
+			import static extension com.google.common.io.CharStreams.*
+			   
+			   class Movies {
+			     
+			     val movies = new FileReader('data.csv').readLines.map [ line |
+			       val segments = line.split('  ').iterator
+			       segments.toSet
+			     ]
+			   }
+		''','''
+			import com.google.common.io.CharStreams;
+			import java.io.FileReader;
+			import java.util.Iterator;
+			import java.util.List;
+			import java.util.Set;
+			import org.eclipse.xtext.xbase.lib.Conversions;
+			import org.eclipse.xtext.xbase.lib.Exceptions;
+			import org.eclipse.xtext.xbase.lib.Functions.Function0;
+			import org.eclipse.xtext.xbase.lib.Functions.Function1;
+			import org.eclipse.xtext.xbase.lib.IteratorExtensions;
+			import org.eclipse.xtext.xbase.lib.ListExtensions;
+			
+			@SuppressWarnings("all")
+			public class Movies {
+			  private final List<Set<String>> movies = new Function0<List<Set<String>>>() {
+			    @Override
+			    public List<Set<String>> apply() {
+			      try {
+			        final Function1<String, Set<String>> _function = (String line) -> {
+			          Set<String> _xblockexpression = null;
+			          {
+			            final Iterator<String> segments = ((List<String>)Conversions.doWrapArray(line.split("  "))).iterator();
+			            _xblockexpression = IteratorExtensions.<String>toSet(segments);
+			          }
+			          return _xblockexpression;
+			        };
+			        List<Set<String>> _map = ListExtensions.<String, Set<String>>map(CharStreams.readLines(new FileReader("data.csv")), _function);
+			        return _map;
+			      } catch (Throwable _e) {
+			        throw Exceptions.sneakyThrow(_e);
+			      }
+			    }
+			  }.apply();
+			}
+		''')
+	}
+	
+	@Test
+	def testCase1After() {
+				assertCompilesTo('''
+			import java.io.FileReader
+			import java.util.Set
+			import static extension com.google.common.io.CharStreams.*
+			   
+			   class Movies {
+			     
+			     val movies = new FileReader('data.csv').readLines.map [ line |
+			       val segments = line.split('  ').iterator
+			       segments.toSet
+			     ]
+			   }
+		''','''
+			import com.google.common.io.CharStreams;
+			import java.io.FileReader;
+			import java.util.Iterator;
+			import java.util.List;
+			import java.util.Set;
+			import org.eclipse.xtext.xbase.lib.Conversions;
+			import org.eclipse.xtext.xbase.lib.Exceptions;
+			import org.eclipse.xtext.xbase.lib.Functions.Function0;
+			import org.eclipse.xtext.xbase.lib.Functions.Function1;
+			import org.eclipse.xtext.xbase.lib.IteratorExtensions;
+			import org.eclipse.xtext.xbase.lib.ListExtensions;
+			
+			@SuppressWarnings("all")
+			public class Movies {
+			  private final List<Set<String>> movies = ((Supplier<List<Set<String>>>) () -> {
+			  		try {
+			  			return ListExtensions.map(CharStreams.readLines(new FileReader("data.csv")), line -> {
+			  				return IteratorExtensions.toSet(((List<String>) Conversions.doWrapArray(line.split("  "))).iterator());
+			  			});
+			  		} catch (Throwable _e) {
+			  			throw Exceptions.sneakyThrow(_e);
+			  		}
+			  	}).get();
+			}
+		''')
+	}
+	
 }
